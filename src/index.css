@@ -599,9 +599,12 @@ body {
 }
 
 .uptime-dots {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 8px);
+  gap: 4px;
   flex: 1;
+  height: 24px;
+  overflow: hidden;
   margin-right: 1.5rem;
 }
 

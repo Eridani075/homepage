@@ -11,7 +11,7 @@ export default function AppGrid() {
     ];
 
     const appDots = React.useMemo(() => {
-        return apps.map(() => Array.from({length: 20}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
+        return apps.map(() => Array.from({length: 60}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
     }, []);
 
     return (
