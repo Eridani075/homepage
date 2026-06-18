@@ -601,6 +601,9 @@ body {
 .uptime-dots {
   display: flex;
   gap: 4px;
+  flex: 1;
+  overflow: hidden;
+  margin-right: 1.5rem;
 }
 
 .uptime-dot {
@@ -608,6 +611,7 @@ body {
   height: 24px;
   border-radius: 4px;
   background-color: #2ed573;
+  flex-shrink: 0;
 }
 
 .uptime-dot.down {
