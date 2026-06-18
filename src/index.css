@@ -495,7 +495,7 @@ body {
 }
 
 .card {
-  background-color: var(--surface-container);
+  background-color: var(--card-bg);
   border: 1px solid transparent;
   box-shadow: 0 4px 24px rgba(0,0,0,0.05);
   border-radius: 28px;
@@ -523,9 +523,7 @@ body {
   }
 }
 
-[data-theme="dark"] .card {
-  background-color: var(--surface-container);
-}
+
 
 .card:hover {
   transform: translateY(-8px) scale(1.02);
