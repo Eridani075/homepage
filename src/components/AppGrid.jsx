@@ -10,6 +10,10 @@ export default function AppGrid() {
         { title: '私人云盘', desc: 'Nextcloud 数据中心、跨设备文件同步与照片备份。', icon: <Database size={32} /> },
     ];
 
+    const appDots = React.useMemo(() => {
+        return apps.map(() => Array.from({length: 22}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
+    }, []);
+
     return (
         <div className="grid">
             {apps.map((app, index) => (
@@ -17,8 +21,18 @@ export default function AppGrid() {
                     <div className="icon-wrapper">
                         {app.icon}
                     </div>
-                    <h2>{app.title}</h2>
-                    <p>{app.desc}</p>
+                    <h2 className="card-title">{app.title}</h2>
+                    <div className="card-content-wrapper">
+                        <p className="card-desc">{app.desc}</p>
+                        <div className="uptime-container">
+                            <div className="uptime-dots">
+                                {appDots[index] && appDots[index].map((status, i) => (
+                                    <div key={i} className={`uptime-dot ${status}`}></div>
+                                ))}
+                            </div>
+                            <span className="uptime-text">Up</span>
+                        </div>
+                    </div>
                 </a>
             ))}
         </div>

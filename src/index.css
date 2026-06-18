@@ -506,7 +506,6 @@ body {
   color: inherit;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
   position: relative;
   overflow: hidden;
   
@@ -540,11 +539,7 @@ body {
 .card:hover .icon-wrapper {
   background-color: var(--primary);
   color: var(--on-primary);
-  transform: scale(1.1);
-}
-
-.card:hover h2, .card:hover p {
-  color: var(--on-primary-container);
+  transform: scale(1.1) rotate(5deg);
 }
 
 .icon-wrapper {
@@ -557,17 +552,97 @@ body {
   align-items: center;
   justify-content: center;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, color 0.2s ease;
+  margin-bottom: 3.5rem; /* Reserve space for absolute title */
 }
 
-.card h2 {
+/* Card Content Structure for Uptime Kuma effect */
+.card-title {
+  position: absolute;
+  top: 6.2rem;
+  left: 1.8rem;
+  margin: 0;
+  transform: translateX(0);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-size: 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
-.card p {
+.card-content-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.card-desc {
+  margin: 0;
+  transition: all 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
   color: var(--text-variant);
-  font-size: 1rem;
   line-height: 1.5;
+}
+
+.uptime-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uptime-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.uptime-dot {
+  width: 6px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: #2ed573;
+}
+
+.uptime-dot.down {
+  background-color: #ff4757;
+  height: 14px;
+}
+
+.uptime-text {
+  background-color: rgba(46, 213, 115, 0.2);
+  color: #2ed573;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Hover States for Card Internals */
+.card:hover .card-title {
+  top: 2rem;
+  left: 100%;
+  transform: translateX(calc(-100% - 1.8rem));
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.card:hover .card-desc {
+  opacity: 0;
+  transform: translateY(-15px);
+  pointer-events: none;
+}
+
+.card:hover .uptime-container {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0.1s;
 }
 
 /* Admin Overlay */
