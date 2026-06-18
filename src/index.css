@@ -539,7 +539,7 @@ body {
 .card:hover .icon-wrapper {
   background-color: var(--primary);
   color: var(--on-primary);
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.1);
 }
 
 .icon-wrapper {
