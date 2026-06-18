@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人基础设施导航</title>
+    <style>
+        /* Material You Expressive Tokens */
+        :root {
+            /* Base Hue & Saturation - Can be dynamically injected */
+            --hue: 260;
+            --sat: 50%;
+            
+            /* Light theme */
+            --md-sys-color-primary-light: hsl(var(--hue), var(--sat), 40%);
+            --md-sys-color-on-primary-light: hsl(var(--hue), var(--sat), 100%);
+            --md-sys-color-primary-container-light: hsl(var(--hue), var(--sat), 90%);
+            --md-sys-color-on-primary-container-light: hsl(var(--hue), var(--sat), 10%);
+            
+            --md-sys-color-secondary-container-light: hsl(var(--hue), 30%, 90%);
+            --md-sys-color-on-secondary-container-light: hsl(var(--hue), 30%, 10%);
+            
+            --md-sys-color-surface-light: hsl(var(--hue), 20%, 98%);
+            --md-sys-color-on-surface-light: hsl(var(--hue), 20%, 10%);
+            --md-sys-color-surface-variant-light: hsl(var(--hue), 20%, 90%);
+            --md-sys-color-on-surface-variant-light: hsl(var(--hue), 20%, 30%);
+            
+            /* Dark theme */
+            --md-sys-color-primary-dark: hsl(var(--hue), var(--sat), 80%);
+            --md-sys-color-on-primary-dark: hsl(var(--hue), var(--sat), 20%);
+            --md-sys-color-primary-container-dark: hsl(var(--hue), var(--sat), 30%);
+            --md-sys-color-on-primary-container-dark: hsl(var(--hue), var(--sat), 90%);
+            
+            --md-sys-color-secondary-container-dark: hsl(var(--hue), 30%, 30%);
+            --md-sys-color-on-secondary-container-dark: hsl(var(--hue), 30%, 90%);
+            
+            --md-sys-color-surface-dark: hsl(var(--hue), 20%, 6%);
+            --md-sys-color-on-surface-dark: hsl(var(--hue), 20%, 90%);
+            --md-sys-color-surface-variant-dark: hsl(var(--hue), 20%, 15%);
+            --md-sys-color-on-surface-variant-dark: hsl(var(--hue), 20%, 80%);
+            
+            /* Apply variables (Light is default) */
+            --bg: var(--md-sys-color-surface-light);
+            --text-main: var(--md-sys-color-on-surface-light);
+            --text-variant: var(--md-sys-color-on-surface-variant-light);
+            --card-bg: var(--md-sys-color-surface-variant-light);
+            --primary: var(--md-sys-color-primary-light);
+            --on-primary: var(--md-sys-color-on-primary-light);
+            --primary-container: var(--md-sys-color-primary-container-light);
+            --on-primary-container: var(--md-sys-color-on-primary-container-light);
+            --secondary-container: var(--md-sys-color-secondary-container-light);
+            --on-secondary-container: var(--md-sys-color-on-secondary-container-light);
+        }
+
+        [data-theme="dark"] {
+            --bg: var(--md-sys-color-surface-dark);
+            --text-main: var(--md-sys-color-on-surface-dark);
+            --text-variant: var(--md-sys-color-on-surface-variant-dark);
+            --card-bg: var(--md-sys-color-surface-variant-dark);
+            --primary: var(--md-sys-color-primary-dark);
+            --on-primary: var(--md-sys-color-on-primary-dark);
+            --primary-container: var(--md-sys-color-primary-container-dark);
+            --on-primary-container: var(--md-sys-color-on-primary-container-dark);
+            --secondary-container: var(--md-sys-color-secondary-container-dark);
+            --on-secondary-container: var(--md-sys-color-on-secondary-container-dark);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: transparent;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 2rem;
+            }
+        }
+
+        /* Ambient Background */
+        .ambient-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+            background-color: var(--bg);
+        }
+
+        .blob {
+            position: absolute;
+            filter: blur(90px);
+            opacity: 0.5;
+            border-radius: 50%;
+            animation: blobFloat 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] .blob {
+            opacity: 0.3;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background-color: var(--primary);
+            animation-duration: 25s;
+        }
+
+        .blob-2 {
+            bottom: -20%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background-color: var(--secondary-container);
+            animation-duration: 22s;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 30%;
+            left: 50%;
+            width: 45vw;
+            height: 45vw;
+            background-color: var(--primary-container);
+            animation-duration: 28s;
+            animation-delay: -10s;
+        }
+
+        @keyframes blobFloat {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                border-radius: 50%;
+            }
+            33% {
+                transform: translate(10%, 15%) scale(1.1) rotate(45deg);
+                border-radius: 60% 40% 50% 50%;
+            }
+            66% {
+                transform: translate(-10%, 5%) scale(0.9) rotate(-30deg);
+                border-radius: 40% 60% 60% 40%;
+            }
+            100% {
+                transform: translate(5%, -10%) scale(1.05) rotate(20deg);
+                border-radius: 50% 50% 40% 60%;
+            }
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 4rem;
+            padding-top: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 2.8rem;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .title-group p {
+            color: var(--text-variant);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: var(--secondary-container);
+            color: var(--on-secondary-container);
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.05);
+            background: var(--primary-container);
+            color: var(--on-primary-container);
+        }
+
+        .btn-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: currentColor;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 4rem;
+            align-items: start;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary-container));
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-primary);
+            font-size: 2.5rem;
+            font-weight: 500;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+            border: 4px solid var(--bg);
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-variant);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 4rem;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            border-radius: 28px;
+            padding: 1.8rem;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            position: relative;
+            overflow: hidden;
+            
+            /* Initial state for animation */
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        [data-theme="dark"] .card {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .card.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .card.show:hover {
+            transform: translateY(-8px) scale(1.02);
+            background-color: var(--primary-container);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            border-color: transparent;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+        }
+        
+        .card:hover .icon-wrapper {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            transform: scale(1.1);
+        }
+        
+        .card:hover h2, .card:hover p {
+            color: var(--on-primary-container);
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background-color: var(--secondary-container);
+            color: var(--on-secondary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .icon-wrapper svg {
+            width: 32px;
+            height: 32px;
+            fill: currentColor;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .card p {
+            color: var(--text-variant);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Admin Overlay */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+        
+        .admin-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .admin-panel {
+            background: var(--bg);
+            border-radius: 28px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .admin-overlay.active .admin-panel {
+            transform: scale(1);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-header h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .close-btn {
+            background: var(--card-bg);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: var(--text-variant);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .close-btn:hover {
+            background: var(--primary-container);
+            color: var(--on-primary-container);
+        }
+        .close-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        .form-group {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text-main);
+            font-size: 1.1rem;
+        }
+
+        .color-picker-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+        }
+
+        .color-picker-wrap span {
+            color: var(--text-variant);
+            font-size: 0.95rem;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+            border: 4px solid var(--bg);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        }
+
+        .file-upload {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 140px;
+            border: 2px dashed var(--on-surface-variant-light);
+            border-radius: 20px;
+            cursor: pointer;
+            overflow: hidden;
+            text-align: center;
+            color: var(--text-variant);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .file-upload:hover {
+            background-color: var(--primary-container);
+            border-color: var(--primary);
+            color: var(--on-primary-container);
+        }
+
+        .file-upload input {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .preview-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            display: none;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 1.2rem;
+            border-radius: 28px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover {
+            background: var(--md-sys-color-primary-light);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-background">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="header">
+        <div class="title-group">
+            <h1>控制台</h1>
+            <p>内部网络与家庭数据中心</p>
+        </div>
+        <div class="controls">
+            <button class="btn-icon" id="theme-toggle" title="切换深色/浅色模式">
+                <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+            </button>
+            <button class="btn-icon" id="admin-toggle" title="管理员颜色自定义">
+                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 10.5-.67 1.5-1.5 1.5z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="hero-section">
+            <div class="avatar">E</div>
+            <h2 class="hero-title" id="greeting">欢迎回来</h2>
+            <p class="hero-subtitle">这里是你的数字花园与个人基础设施网关。所有的应用服务都在安全运行中，随时准备好为你服务。</p>
+        </div>
+
+        <div class="grid" id="app-grid">
+        <!-- Application Cards -->
+        <a href="#" class="card">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M21 13v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7H2v-2l1-5h18l1 5v2h-1zM5 13v5h14v-5H5zm-.96-2h15.92l-.6-3H4.64l-.6 3zM6 14h8v2H6v-2z"/></svg>
+            </div>
+            <h2>个人博客</h2>
+            <p>数字花园、笔记、技术教程与开发日志库。</p>
+        </a>
+        <a href="#" class="card">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"/></svg>
+            </div>
+            <h2>路由器控制台</h2>
+            <p>OpenWrt 智能家庭网关与网络流量管控面板。</p>
+        </a>
+        <a href="#" class="card">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <h2>FRP 内网穿透</h2>
+            <p>外部公网访问本地开发环境与服务的隧道管理。</p>
+        </a>
+        <a href="#" class="card">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+            </div>
+            <h2>监控中心 (Grafana)</h2>
+            <p>探针看板、Docker 容器监控及服务器性能数据。</p>
+        </a>
+        <a href="#" class="card">
+            <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg>
+            </div>
+            <h2>私人云盘</h2>
+            <p>Nextcloud 数据中心、跨设备文件同步与照片备份。</p>
+        </a>
+        </div>
+    </div>
+
+    <!-- Admin Color Setting Modal -->
+    <div class="admin-overlay" id="admin-modal">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h2>主题定制 (Admin)</h2>
+                <button class="close-btn" id="close-admin">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>全局主色调调色板</label>
+                <div class="color-picker-wrap">
+                    <input type="color" id="base-color" value="#6200EE">
+                    <span>手动指定 Material 动态基色</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="text-align: center; color: var(--text-variant); margin: 0.5rem 0;">
+                — 或 —
+            </div>
+
+            <div class="form-group">
+                <label>从壁纸/图片智能提取色彩</label>
+                <div class="file-upload">
+                    <img id="preview-img" class="preview-img" src="" alt="">
+                    <span>点击或拖拽上传背景图片<br><small>系统将自动计算生成 Material You 色系</small></span>
+                    <input type="file" id="image-upload" accept="image/*">
+                </div>
+            </div>
+
+            <button class="btn-primary" id="save-theme">应用并覆盖全站</button>
+        </div>
+    </div>
+
+    <script>
+        // -- Theme Toggle Logic --
+        const themeToggle = document.getElementById('theme-toggle');
+        const root = document.documentElement;
+        
+        // Init theme from persistence
+        const savedTheme = localStorage.getItem('material-theme-mode') || 'light';
+        root.setAttribute('data-theme', savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('material-theme-mode', next);
+        });
+
+        // -- Admin Modal Logic --
+        const adminBtn = document.getElementById('admin-toggle');
+        const adminModal = document.getElementById('admin-modal');
+        const closeAdmin = document.getElementById('close-admin');
+        const saveThemeBtn = document.getElementById('save-theme');
+        const baseColorInput = document.getElementById('base-color');
+        const imageUpload = document.getElementById('image-upload');
+        const previewImg = document.getElementById('preview-img');
+
+        adminBtn.addEventListener('click', () => {
+            adminModal.classList.add('active');
+        });
+
+        closeAdmin.addEventListener('click', () => {
+            adminModal.classList.remove('active');
+        });
+
+        // Convert HEX string to HSL object
+        function hexToHSL(H) {
+            let r = 0, g = 0, b = 0;
+            if (H.length == 4) {
+                r = "0x" + H[1] + H[1];
+                g = "0x" + H[2] + H[2];
+                b = "0x" + H[3] + H[3];
+            } else if (H.length == 7) {
+                r = "0x" + H[1] + H[2];
+                g = "0x" + H[3] + H[4];
+                b = "0x" + H[5] + H[6];
+            }
+            r /= 255; g /= 255; b /= 255;
+            let cmin = Math.min(r,g,b),
+                cmax = Math.max(r,g,b),
+                delta = cmax - cmin,
+                h = 0,
+                s = 0,
+                l = 0;
+
+            if (delta == 0) h = 0;
+            else if (cmax == r) h = ((g - b) / delta) % 6;
+            else if (cmax == g) h = (b - r) / delta + 2;
+            else h = (r - g) / delta + 4;
+
+            h = Math.round(h * 60);
+            if (h < 0) h += 360;
+
+            l = (cmax + cmin) / 2;
+            s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+            s = +(s * 100).toFixed(1);
+
+            return { h, s };
+        }
+
+        // Initialize dynamic colors from storage
+        const savedHue = localStorage.getItem('material-color-hue');
+        const savedSat = localStorage.getItem('material-color-sat');
+        if (savedHue && savedSat) {
+            root.style.setProperty('--hue', savedHue);
+            root.style.setProperty('--sat', `${savedSat}%`);
+        }
+
+        // Save Color Manually
+        saveThemeBtn.addEventListener('click', () => {
+            const hex = baseColorInput.value;
+            const hsl = hexToHSL(hex);
+            
+            root.style.setProperty('--hue', hsl.h);
+            root.style.setProperty('--sat', `${hsl.s}%`);
+            
+            localStorage.setItem('material-color-hue', hsl.h);
+            localStorage.setItem('material-color-sat', hsl.s);
+            
+            saveThemeBtn.textContent = '已保存！';
+            setTimeout(() => {
+                saveThemeBtn.textContent = '应用并覆盖全站';
+                adminModal.classList.remove('active');
+            }, 800);
+        });
+
+        // -- Hero Section & Reveal Logic --
+        const greetingEl = document.getElementById('greeting');
+        const hour = new Date().getHours();
+        if (hour < 6) greetingEl.textContent = '夜深了，注意休息';
+        else if (hour < 9) greetingEl.textContent = '早上好，充满活力的一天';
+        else if (hour < 12) greetingEl.textContent = '上午好，工作顺利';
+        else if (hour < 14) greetingEl.textContent = '中午好，稍作歇息';
+        else if (hour < 18) greetingEl.textContent = '下午好，继续前行';
+        else if (hour < 22) greetingEl.textContent = '晚上好，放松一下';
+        else greetingEl.textContent = '夜深了，晚安';
+
+        const cards = document.querySelectorAll('#app-grid .card');
+        
+        // Auto-trigger staggered reveal animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 100 + index * 80); // 80ms delay between each card
+            });
+        });
+
+        // Simulate color extraction from Uploaded Image
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    
+                    // Simulate processing delay for extraction
+                    setTimeout(() => {
+                        // Mock pleasing generated hues representing dominant color extraction
+                        const mockHues = [14, 160, 205, 340, 45, 280];
+                        const fakeExtractedHue = mockHues[Math.floor(Math.random() * mockHues.length)];
+                        
+                        root.style.setProperty('--hue', fakeExtractedHue);
+                        root.style.setProperty('--sat', `70%`);
+                        
+                        localStorage.setItem('material-color-hue', fakeExtractedHue);
+                        localStorage.setItem('material-color-sat', 70);
+                        
+                        saveThemeBtn.textContent = '已自动提取并应用色调';
+                        setTimeout(() => {
+                            saveThemeBtn.textContent = '应用并覆盖全站';
+                            adminModal.classList.remove('active');
+                            previewImg.style.display = 'none';
+                            imageUpload.value = '';
+                        }, 1200);
+                    }, 600);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
