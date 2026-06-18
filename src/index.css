@@ -562,10 +562,11 @@ body {
   left: 1.8rem;
   margin: 0;
   transform: translateX(0);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
 .card-content-wrapper {
@@ -603,7 +604,7 @@ body {
 }
 
 .uptime-dot {
-  width: 6px;
+  width: 8px;
   height: 24px;
   border-radius: 4px;
   background-color: #2ed573;
