@@ -869,3 +869,144 @@ select.style-select {
   transform: rotate(-90deg) scale(0) !important;
   opacity: 0 !important;
 }
+
+/* Edit Mode Styles */
+@keyframes wiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-1deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(1deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.grid.edit-mode .card {
+  animation: wiggle 0.4s infinite;
+  cursor: grab;
+  border: 1px dashed var(--primary);
+}
+
+.grid.edit-mode .card:active {
+  cursor: grabbing;
+}
+
+.grid.edit-mode .card.dragging {
+  opacity: 0.5;
+  border: 2px dashed var(--primary);
+}
+
+.delete-card-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.delete-card-btn:hover {
+  transform: scale(1.1);
+}
+
+.add-card-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent !important;
+  border: 2px dashed var(--outline) !important;
+  cursor: pointer !important;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  animation: none !important;
+  min-height: 200px;
+}
+
+.add-card-placeholder:hover {
+  opacity: 1;
+  background-color: var(--surface-variant) !important;
+  border-color: var(--primary) !important;
+}
+
+.add-icon-wrapper {
+  color: var(--on-surface-variant);
+  margin-bottom: 1rem;
+}
+
+.add-card-placeholder h3 {
+  color: var(--on-surface-variant);
+  margin: 0;
+}
+
+/* Add Card Modal Styles */
+.add-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.add-card-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-card-form label {
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.add-card-form input[type="text"],
+.add-card-form textarea {
+  background-color: var(--surface-container-highest);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.add-card-form input[type="text"]:focus,
+.add-card-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 0.5rem;
+}
+
+.icon-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-option:hover {
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.icon-option.selected {
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border: 2px solid var(--primary-container);
+}

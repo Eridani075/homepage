@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Moon, Sun, Palette, Sparkles, LayoutTemplate } from 'lucide-react';
+import { Settings, Moon, Sun, Palette, Sparkles, LayoutTemplate, Edit2, X } from 'lucide-react';
 
-export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab }) {
+export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab, isEditMode, setIsEditMode }) {
     const [scrolled, setScrolled] = useState(false);
     const [settingsExpanded, setSettingsExpanded] = useState(false);
 
@@ -17,6 +17,19 @@ export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab
         setActiveTab(tab);
         setAdminActive(true);
         setSettingsExpanded(false);
+    };
+
+    const enterEditMode = () => {
+        setIsEditMode(true);
+        setSettingsExpanded(false);
+    };
+
+    const handleTriggerClick = () => {
+        if (isEditMode) {
+            setIsEditMode(false);
+        } else {
+            setSettingsExpanded(!settingsExpanded);
+        }
     };
     return (
         <nav className={`top-bar ${scrolled ? 'scrolled' : ''}`}>
@@ -34,8 +47,11 @@ export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab
                         </div>
                     </button>
                     
-                    <div className={`settings-pill ${settingsExpanded ? 'expanded' : ''}`}>
+                    <div className={`settings-pill ${settingsExpanded && !isEditMode ? 'expanded' : ''}`}>
                         <div className="settings-pill-content">
+                            <button className="pill-btn" onClick={enterEditMode} title="编辑应用卡片">
+                                <Edit2 size={18} />
+                            </button>
                             <button className="pill-btn" onClick={() => openSettings('palette')} title="色彩与背景">
                                 <Palette size={18} />
                             </button>
@@ -46,8 +62,8 @@ export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab
                                 <LayoutTemplate size={18} />
                             </button>
                         </div>
-                        <button className="btn-icon small-btn trigger-btn" onClick={() => setSettingsExpanded(!settingsExpanded)} title="系统设置">
-                            <Settings size={20} className={settingsExpanded ? 'rotate-icon' : ''} />
+                        <button className="btn-icon small-btn trigger-btn" onClick={handleTriggerClick} title={isEditMode ? "退出编辑" : "系统设置"}>
+                            {isEditMode ? <X size={20} /> : <Settings size={20} className={settingsExpanded ? 'rotate-icon' : ''} />}
                         </button>
                     </div>
 

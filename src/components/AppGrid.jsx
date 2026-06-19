@@ -1,40 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import { Server, Globe, Box, Settings, Database } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Server, Globe, Box, Settings, Database, Wifi, Terminal, HardDrive, Monitor, Activity, Shield, Trash2, Plus } from 'lucide-react';
+import AddCardModal from './AddCardModal';
 
-export default function AppGrid() {
-    const apps = [
-        { title: '个人博客', desc: '数字花园、笔记、技术教程与开发日志库。', icon: <Globe size={32} /> },
-        { title: '路由器控制台', desc: 'OpenWrt 智能家庭网关与网络流量管控面板。', icon: <Server size={32} /> },
-        { title: 'FRP 内网穿透', desc: '外部公网访问本地开发环境与服务的隧道管理。', icon: <Box size={32} /> },
-        { title: '监控中心 (Grafana)', desc: '探针看板、Docker 容器监控及服务器性能数据。', icon: <Settings size={32} /> },
-        { title: '私人云盘', desc: 'Nextcloud 数据中心、跨设备文件同步与照片备份。', icon: <Database size={32} /> },
-    ];
+const iconMap = {
+    Globe, Server, Box, Settings, Database, Wifi, Terminal, HardDrive, Monitor, Activity, Shield
+};
 
+export default function AppGrid({ cards, setCards, isEditMode }) {
+    const [showAddModal, setShowAddModal] = useState(false);
+    
+    // Drag and Drop refs
+    const dragItem = useRef(null);
+    const dragOverItem = useRef(null);
+    const [draggingIndex, setDraggingIndex] = useState(null);
+
+    // Save to local storage whenever we update cards
+    const updateCards = (newCards) => {
+        setCards(newCards);
+        localStorage.setItem('dashboard-cards', JSON.stringify(newCards));
+    };
+
+    const handleDragStart = (e, index) => {
+        dragItem.current = index;
+        setDraggingIndex(index);
+        // Required for Firefox
+        e.dataTransfer.effectAllowed = 'move';
+        // Need to set data to allow drag
+        e.dataTransfer.setData('text/plain', index);
+    };
+
+    const handleDragEnter = (e, index) => {
+        dragOverItem.current = index;
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault(); // Necessary to allow dropping
+    };
+
+    const handleDragEnd = () => {
+        if (dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current) {
+            const _cards = [...cards];
+            const draggedCardContent = _cards[dragItem.current];
+            _cards.splice(dragItem.current, 1);
+            _cards.splice(dragOverItem.current, 0, draggedCardContent);
+            updateCards(_cards);
+        }
+        dragItem.current = null;
+        dragOverItem.current = null;
+        setDraggingIndex(null);
+    };
+
+    const handleDelete = (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (confirm('确定要删除这个应用卡片吗？')) {
+            const newCards = cards.filter(card => card.id !== id);
+            updateCards(newCards);
+        }
+    };
+
+    const handleAddCard = (newCard) => {
+        const newCards = [...cards, newCard];
+        updateCards(newCards);
+        setShowAddModal(false);
+    };
+
+    // Virtual uptime dots data
     const appDots = React.useMemo(() => {
-        return apps.map(() => Array.from({length: 60}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
-    }, []);
+        return cards.map(() => Array.from({length: 60}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
+    }, [cards.length]); // Re-compute if length changes, though normally this would be real data
 
     return (
-        <div className="grid">
-            {apps.map((app, index) => (
-                <a href="#" className="card" style={{ animationDelay: `${100 + index * 80}ms` }} key={index}>
-                    <div className="icon-wrapper">
-                        {app.icon}
-                    </div>
-                    <h2 className="card-title">{app.title}</h2>
-                    <div className="card-content-wrapper">
-                        <p className="card-desc">{app.desc}</p>
-                        <div className="uptime-container">
-                            <div className="uptime-dots">
-                                {appDots[index] && appDots[index].map((status, i) => (
-                                    <div key={i} className={`uptime-dot ${status}`}></div>
-                                ))}
+        <>
+            <div className={`grid ${isEditMode ? 'edit-mode' : ''}`}>
+                {cards.map((app, index) => {
+                    const IconComponent = iconMap[app.iconName] || Box;
+                    
+                    return (
+                        <a 
+                            href="#" 
+                            className={`card ${draggingIndex === index ? 'dragging' : ''}`} 
+                            style={{ animationDelay: isEditMode ? '0ms' : `${100 + index * 80}ms` }} 
+                            key={app.id || index}
+                            draggable={isEditMode}
+                            onDragStart={(e) => handleDragStart(e, index)}
+                            onDragEnter={(e) => handleDragEnter(e, index)}
+                            onDragOver={handleDragOver}
+                            onDragEnd={handleDragEnd}
+                            onClick={(e) => { if(isEditMode) e.preventDefault(); }}
+                        >
+                            {isEditMode && (
+                                <button className="delete-card-btn" onClick={(e) => handleDelete(e, app.id)}>
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
+
+                            <div className="icon-wrapper">
+                                <IconComponent size={32} />
                             </div>
-                            <span className="uptime-text">Up</span>
+                            <h2 className="card-title">{app.title}</h2>
+                            <div className="card-content-wrapper">
+                                <p className="card-desc">{app.desc}</p>
+                                
+                                {app.showUptime && (
+                                    <div className="uptime-container">
+                                        <div className="uptime-dots">
+                                            {appDots[index] && appDots[index].map((status, i) => (
+                                                <div key={i} className={`uptime-dot ${status}`}></div>
+                                            ))}
+                                        </div>
+                                        <span className="uptime-text">Up</span>
+                                    </div>
+                                )}
+                            </div>
+                        </a>
+                    );
+                })}
+
+                {isEditMode && (
+                    <div className="card add-card-placeholder" onClick={() => setShowAddModal(true)}>
+                        <div className="add-icon-wrapper">
+                            <Plus size={48} />
                         </div>
+                        <h3>添加应用</h3>
                     </div>
-                </a>
-            ))}
-        </div>
+                )}
+            </div>
+
+            {showAddModal && (
+                <AddCardModal 
+                    onClose={() => setShowAddModal(false)}
+                    onAdd={handleAddCard}
+                />
+            )}
+        </>
     );
 }

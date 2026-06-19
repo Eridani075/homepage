@@ -26,6 +26,16 @@ export default function App() {
     const [mediaUrl, setMediaUrl] = useState(null);
     const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
     const [heroStyle, setHeroStyle] = useState('card'); // 'card' or 'minimal'
+    const [isEditMode, setIsEditMode] = useState(false);
+    
+    const defaultCards = [
+        { id: '1', title: '个人博客', desc: '数字花园、笔记、技术教程与开发日志库。', iconName: 'Globe', showUptime: true },
+        { id: '2', title: '路由器控制台', desc: 'OpenWrt 智能家庭网关与网络流量管控面板。', iconName: 'Server', showUptime: true },
+        { id: '3', title: 'FRP 内网穿透', desc: '外部公网访问本地开发环境与服务的隧道管理。', iconName: 'Box', showUptime: true },
+        { id: '4', title: '监控中心 (Grafana)', desc: '探针看板、Docker 容器监控及服务器性能数据。', iconName: 'Settings', showUptime: true },
+        { id: '5', title: '私人云盘', desc: 'Nextcloud 数据中心、跨设备文件同步与照片备份。', iconName: 'Database', showUptime: true },
+    ];
+    const [cards, setCards] = useState(defaultCards);
 
     // Load initial state
     useEffect(() => {
@@ -40,6 +50,13 @@ export default function App() {
 
         const savedHeroStyle = localStorage.getItem('hero-style');
         if (savedHeroStyle) setHeroStyle(savedHeroStyle);
+
+        const savedCards = localStorage.getItem('dashboard-cards');
+        if (savedCards) {
+            try {
+                setCards(JSON.parse(savedCards));
+            } catch(e) {}
+        }
 
         localforage.getItem('custom-media').then((blob) => {
             if (blob) {
@@ -186,11 +203,17 @@ export default function App() {
                 setIsDark={setIsDark} 
                 setAdminActive={setAdminActive} 
                 setActiveTab={setActiveTab}
+                isEditMode={isEditMode}
+                setIsEditMode={setIsEditMode}
             />
 
             <div className="main-layout">
                 <HeroSection heroStyle={heroStyle} />
-                <AppGrid />
+                <AppGrid 
+                    cards={cards} 
+                    setCards={setCards} 
+                    isEditMode={isEditMode} 
+                />
             </div>
 
             <AdminModal 
