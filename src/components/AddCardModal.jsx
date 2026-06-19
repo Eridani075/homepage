@@ -1,19 +1,6 @@
 import React, { useState } from 'react';
-import { Server, Globe, Box, Settings, Database, Wifi, Terminal, HardDrive, Monitor, Activity, Shield, X } from 'lucide-react';
-
-const iconOptions = [
-    { name: 'Globe', component: Globe },
-    { name: 'Server', component: Server },
-    { name: 'Box', component: Box },
-    { name: 'Settings', component: Settings },
-    { name: 'Database', component: Database },
-    { name: 'Wifi', component: Wifi },
-    { name: 'Terminal', component: Terminal },
-    { name: 'HardDrive', component: HardDrive },
-    { name: 'Monitor', component: Monitor },
-    { name: 'Activity', component: Activity },
-    { name: 'Shield', component: Shield },
-];
+import { X } from 'lucide-react';
+import { iconMap } from '../iconMap';
 
 export default function AddCardModal({ onClose, onAdd }) {
     const [title, setTitle] = useState('');
@@ -38,13 +25,13 @@ export default function AddCardModal({ onClose, onAdd }) {
         <div className="admin-overlay active">
             <div className="admin-panel" style={{ maxWidth: '500px' }}>
                 <div className="admin-header">
-                    <h2>添加新应用卡片</h2>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>添加新应用卡片</h2>
                     <button className="close-btn" onClick={onClose}><X size={24} /></button>
                 </div>
                 <div className="admin-content" style={{ padding: '2rem' }}>
                     <form onSubmit={handleSubmit} className="add-card-form">
                         <div className="form-group">
-                            <label>应用标题</label>
+                            <label style={{ fontSize: '1.1rem' }}>应用标题</label>
                             <input 
                                 type="text" 
                                 value={title} 
@@ -55,7 +42,7 @@ export default function AddCardModal({ onClose, onAdd }) {
                         </div>
                         
                         <div className="form-group">
-                            <label>应用描述</label>
+                            <label style={{ fontSize: '1.1rem' }}>应用描述</label>
                             <textarea 
                                 value={desc} 
                                 onChange={e => setDesc(e.target.value)} 
@@ -65,15 +52,16 @@ export default function AddCardModal({ onClose, onAdd }) {
                         </div>
 
                         <div className="form-group">
-                            <label>选择图标</label>
-                            <div className="icon-grid">
-                                {iconOptions.map(option => {
-                                    const IconComponent = option.component;
+                            <label style={{ fontSize: '1.1rem' }}>选择图标</label>
+                            <div className="icon-grid" style={{ maxHeight: '200px', overflowY: 'auto', paddingRight: '5px' }}>
+                                {Object.keys(iconMap).map(iconName => {
+                                    const IconComponent = iconMap[iconName];
                                     return (
                                         <div 
-                                            key={option.name}
-                                            className={`icon-option ${selectedIcon === option.name ? 'selected' : ''}`}
-                                            onClick={() => setSelectedIcon(option.name)}
+                                            key={iconName}
+                                            className={`icon-option ${selectedIcon === iconName ? 'selected' : ''}`}
+                                            onClick={() => setSelectedIcon(iconName)}
+                                            title={iconName}
                                         >
                                             <IconComponent size={24} />
                                         </div>
@@ -82,20 +70,20 @@ export default function AddCardModal({ onClose, onAdd }) {
                             </div>
                         </div>
 
-                        <div className="form-group row-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                            <label style={{margin: 0}}>启用 Uptime 监控悬浮动效</label>
+                        <div className="form-group row-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
+                            <label style={{ margin: 0, fontSize: '1.1rem' }}>启用 Uptime 监控悬浮动效</label>
                             <label className="toggle-switch">
                                 <input 
                                     type="checkbox" 
                                     checked={showUptime} 
                                     onChange={(e) => setShowUptime(e.target.checked)} 
                                 />
-                                <span className="slider"></span>
+                                <span className="slider round"></span>
                             </label>
                         </div>
 
-                        <button type="submit" className="save-btn" style={{marginTop: '2rem'}}>
-                            添加卡片
+                        <button type="submit" className="save-btn beautiful-btn" style={{marginTop: '2.5rem'}}>
+                            添加至控制台
                         </button>
                     </form>
                 </div>

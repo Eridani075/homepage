@@ -1,10 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Server, Globe, Box, Settings, Database, Wifi, Terminal, HardDrive, Monitor, Activity, Shield, Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Box } from 'lucide-react';
+import { iconMap } from '../iconMap';
 import AddCardModal from './AddCardModal';
-
-const iconMap = {
-    Globe, Server, Box, Settings, Database, Wifi, Terminal, HardDrive, Monitor, Activity, Shield
-};
 
 export default function AppGrid({ cards, setCards, isEditMode }) {
     const [showAddModal, setShowAddModal] = useState(false);
