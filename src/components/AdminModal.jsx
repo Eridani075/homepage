@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import iro from '@jaames/iro';
+import CustomSelect from './CustomSelect';
+import SocialSettingsTab from './SocialSettingsTab';
 
 export default function AdminModal({ 
     active, 
@@ -13,7 +15,15 @@ export default function AdminModal({
     onMediaUpload, 
     onColorChange,
     onResetMedia,
-    baseColor
+    baseColor,
+    socialLinks,
+    setSocialLinks,
+    enableBgOverlay,
+    setEnableBgOverlay,
+    bgOverlayFollowsTheme,
+    setBgOverlayFollowsTheme,
+    bgOverlayBlur,
+    setBgOverlayBlur
 }) {
     const colorPickerRef = useRef(null);
     const iroColorPicker = useRef(null);
@@ -56,7 +66,7 @@ export default function AdminModal({
             }
             iroColorPicker.current = null;
         }
-    }, []); // Empty dependency array prevents recreation on color change
+    }, [active, activeTab, baseColor]); // Depend on active and activeTab to re-initialize when visible
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -68,38 +78,27 @@ export default function AdminModal({
 
     const renderContent = () => {
         switch(activeTab) {
-            case 'style':
-                return (
-                    <div className="form-group">
-                        <label>Material 3 取色风格</label>
-                        <select 
-                            className="style-select" 
-                            value={themeStyle} 
-                            onChange={(e) => setThemeStyle(e.target.value)}
-                        >
-                            <option value="TONAL_SPOT">Tonal Spot (柔和/默认)</option>
-                            <option value="VIBRANT">Vibrant (鲜艳活力)</option>
-                            <option value="EXPRESSIVE">Expressive (极具表现力)</option>
-                            <option value="RAINBOW">Rainbow (彩虹)</option>
-                            <option value="FRUIT_SALAD">Fruit Salad (高对比度)</option>
-                        </select>
-                        <p style={{marginTop: '1rem', color: 'var(--text-variant)', fontSize: '0.9rem'}}>切换不同的色彩引擎，算法会基于你的主色调或者壁纸生成不同风格的全局配色方案。</p>
-                    </div>
-                );
             case 'layout':
                 return (
                     <div className="form-group">
                         <label>左侧边栏布局</label>
-                        <select 
-                            className="style-select" 
+                        <CustomSelect 
                             value={heroStyle} 
-                            onChange={(e) => setHeroStyle(e.target.value)}
-                        >
-                            <option value="card">大号悬浮卡片式 (推荐)</option>
-                            <option value="minimal">极简分割线式</option>
-                        </select>
+                            onChange={setHeroStyle}
+                            options={[
+                                { value: 'card', label: '大号悬浮卡片式 (推荐)' },
+                                { value: 'minimal', label: '极简分割线式' }
+                            ]}
+                        />
                         <p style={{marginTop: '1rem', color: 'var(--text-variant)', fontSize: '0.9rem'}}>选择“大号悬浮卡片式”在使用自定义图片背景时会提供更好的内容可读性。</p>
                     </div>
+                );
+            case 'social':
+                return (
+                    <SocialSettingsTab 
+                        socialLinks={socialLinks} 
+                        setSocialLinks={setSocialLinks} 
+                    />
                 );
             case 'palette':
             default:
@@ -112,8 +111,53 @@ export default function AdminModal({
                             </div>
                         </div>
 
-                        <div className="form-group" style={{ textAlign: 'center', color: 'var(--text-variant)', margin: '0.5rem 0' }}>
-                            — 或 —
+                        <div className="form-group">
+                            <label>色彩风格提取策略</label>
+                            <CustomSelect 
+                                value={themeStyle} 
+                                onChange={setThemeStyle}
+                                options={[
+                                    { value: 'TONAL_SPOT', label: 'Tonal Spot (柔和/默认)' },
+                                    { value: 'VIBRANT', label: 'Vibrant (鲜艳明亮)' },
+                                    { value: 'EXPRESSIVE', label: 'Expressive (表现力/丰富)' },
+                                    { value: 'RAINBOW', label: 'Rainbow (彩虹/多色相)' },
+                                    { value: 'FRUIT_SALAD', label: 'Fruit Salad (双色撞色)' }
+                                ]}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>背景遮罩控制</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 'normal' }}>
+                                    <span>开启背景颜色遮罩</span>
+                                    <label className="toggle-switch">
+                                        <input type="checkbox" checked={enableBgOverlay} onChange={(e) => setEnableBgOverlay(e.target.checked)} />
+                                        <span className="slider"></span>
+                                    </label>
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: enableBgOverlay ? 'pointer' : 'not-allowed', fontSize: '0.9rem', color: 'var(--text-main)', opacity: enableBgOverlay ? 1 : 0.5, fontWeight: 'normal' }}>
+                                    <span>遮罩颜色跟随动态主题色</span>
+                                    <label className="toggle-switch">
+                                        <input type="checkbox" checked={bgOverlayFollowsTheme} disabled={!enableBgOverlay} onChange={(e) => setBgOverlayFollowsTheme(e.target.checked)} />
+                                        <span className="slider"></span>
+                                    </label>
+                                </label>
+                                <div style={{ opacity: enableBgOverlay ? 1 : 0.5, pointerEvents: enableBgOverlay ? 'auto' : 'none' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                                        <span>遮罩模糊程度</span>
+                                        <span>{bgOverlayBlur}px</span>
+                                    </div>
+                                    <input 
+                                        type="range" 
+                                        min="0" 
+                                        max="64" 
+                                        value={bgOverlayBlur} 
+                                        onChange={(e) => setBgOverlayBlur(Number(e.target.value))} 
+                                        className="m3-slider"
+                                        style={{ '--slider-val': `${(bgOverlayBlur / 64) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="form-group">
@@ -131,24 +175,26 @@ export default function AdminModal({
 
     const getTitle = () => {
         switch(activeTab) {
-            case 'style': return '色彩引擎风格';
             case 'layout': return '界面布局设置';
+            case 'social': return '社交媒体设置';
             case 'palette': default: return '色彩与背景设置';
         }
     };
 
     return (
         <div className={`admin-overlay ${active ? 'active' : ''}`}>
-            <div className="admin-panel">
-                <div className="admin-header">
-                    <h2>{getTitle()}</h2>
-                    <button className="close-btn" onClick={onClose}>
-                        <X size={24} />
-                    </button>
-                </div>
+            <div className={`admin-panel-wrapper ${activeTab === 'social' ? 'wide-panel' : ''}`}>
+                <div className="admin-panel">
+                    <div className="admin-header">
+                        <h2>{getTitle()}</h2>
+                        <button className="close-btn" onClick={onClose}>
+                            <X size={24} />
+                        </button>
+                    </div>
 
                 {renderContent()}
 
+                </div>
             </div>
         </div>
     );
