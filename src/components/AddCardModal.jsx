@@ -70,7 +70,7 @@ export default function AddCardModal({ onClose, onAdd }) {
                             </div>
                         </div>
 
-                        <div className="form-group row-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
+                        <div className="form-group row-flex" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
                             <label style={{ margin: 0, fontSize: '1.1rem' }}>启用 Uptime 监控悬浮动效</label>
                             <label className="toggle-switch">
                                 <input 

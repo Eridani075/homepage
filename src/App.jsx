@@ -116,6 +116,10 @@ export default function App() {
         root.style.setProperty('--on-primary-container', hexFromArgb(scheme.onPrimaryContainer));
         root.style.setProperty('--secondary-container', hexFromArgb(scheme.secondaryContainer));
         root.style.setProperty('--on-secondary-container', hexFromArgb(scheme.onSecondaryContainer));
+        root.style.setProperty('--outline', hexFromArgb(scheme.outline));
+        root.style.setProperty('--outline-variant', hexFromArgb(scheme.outlineVariant));
+        root.style.setProperty('--surface-variant', hexFromArgb(scheme.surfaceVariant));
+        root.style.setProperty('--surface-container-highest', hexFromArgb(scheme.surfaceVariant)); // Fallback for M3 Container
     };
 
     const extractColorFromImage = async (url) => {
