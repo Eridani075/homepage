@@ -26,10 +26,7 @@ export default function HeroSection({ heroStyle }) {
             <div className="hero-card">
                 <div className="hero-header">
                     <div className="avatar">E</div>
-                    <div className="status-badge">
-                        <span className="status-dot"></span>
-                        <span className="status-text">System Online</span>
-                    </div>
+
                 </div>
                 <div className="hero-content">
                     <h2 className="hero-title">{greeting}</h2>
