@@ -35,13 +35,13 @@ export default function AddCardModal({ onClose, onAdd }) {
     };
 
     return (
-        <div className="admin-modal-overlay active">
-            <div className="admin-modal" style={{ maxWidth: '500px' }}>
-                <div className="admin-modal-header">
+        <div className="admin-overlay active">
+            <div className="admin-panel" style={{ maxWidth: '500px' }}>
+                <div className="admin-header">
                     <h2>添加新应用卡片</h2>
-                    <button className="btn-icon" onClick={onClose}><X size={24} /></button>
+                    <button className="close-btn" onClick={onClose}><X size={24} /></button>
                 </div>
-                <div className="admin-modal-content">
+                <div className="admin-content" style={{ padding: '2rem' }}>
                     <form onSubmit={handleSubmit} className="add-card-form">
                         <div className="form-group">
                             <label>应用标题</label>
