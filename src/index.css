@@ -241,7 +241,7 @@ body {
 }
 
 .settings-pill.expanded {
-  width: 180px;
+  width: 224px;
   background: var(--primary-container);
   color: var(--on-primary-container);
 }
