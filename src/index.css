@@ -576,10 +576,10 @@ body {
 }
 
 .hero-card {
-  background-color: color-mix(in srgb, var(--card-bg) 28%, transparent);
+  background-color: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
   border-radius: 32px;
   padding: 2.5rem;
@@ -593,11 +593,12 @@ body {
 .hero-card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border-color: color-mix(in srgb, var(--outline) 30%, transparent);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="dark"] .hero-card {
-  border-color: color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -1034,10 +1035,10 @@ body {
 }
 
 .card {
-  background-color: color-mix(in srgb, var(--card-bg) 28%, transparent);
+  background-color: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
   border-radius: 28px;
   padding: 1.8rem;
@@ -1096,7 +1097,8 @@ body {
 }
 
 [data-theme="dark"] .card {
-  border-color: color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
