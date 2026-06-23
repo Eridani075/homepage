@@ -1,11 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { socialIconMap } from '../socialIconMap';
 import AvatarCropModal from './AvatarCropModal';
+import { User } from 'lucide-react';
 
-export default function HeroSection({ heroStyle, socialLinks = [], isEditMode, avatarText, setAvatarText, avatarUrl, onAvatarUpload, onResetAvatar, onOpenSocialSettings }) {
+export default function HeroSection({ 
+    heroStyle, 
+    socialLinks = [], 
+    isEditMode, 
+    avatarUrl, 
+    onAvatarUpload, 
+    onResetAvatar, 
+    onOpenSocialSettings,
+    username,
+    setUsername,
+    personalSign,
+    setPersonalSign,
+    cardBlur
+}) {
     const hour = new Date().getHours();
     const fileInputRef = React.useRef(null);
     const [cropImageSrc, setCropImageSrc] = useState(null);
+
+    // Revoke cropImageSrc object URL when it changes or unmounts to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (cropImageSrc) {
+                URL.revokeObjectURL(cropImageSrc);
+            }
+        };
+    }, [cropImageSrc]);
 
     let greeting = '夜深了，晚安';
     if (hour < 6) greeting = '夜深了，注意休息';
@@ -68,21 +91,10 @@ export default function HeroSection({ heroStyle, socialLinks = [], isEditMode, a
     };
 
     const renderAvatar = () => {
-
         const avatarContent = avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="avatar-image" />
         ) : (
-            isEditMode ? (
-                <input 
-                    type="text" 
-                    className="avatar-input-text" 
-                    value={avatarText} 
-                    onChange={(e) => setAvatarText(e.target.value.substring(0, 2))} 
-                    placeholder="E"
-                />
-            ) : (
-                <div className="avatar-text-content">{avatarText || 'E'}</div>
-            )
+            <User size={36} style={{ opacity: 0.85 }} />
         );
 
         return (
@@ -127,10 +139,34 @@ export default function HeroSection({ heroStyle, socialLinks = [], isEditMode, a
             <>
                 <div className="hero-section hero-minimal">
                     {renderAvatar()}
+                    {isEditMode ? (
+                        <input 
+                            className="hero-username-input" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="用户名"
+                            maxLength={25}
+                        />
+                    ) : (
+                        username && <h1 className="hero-username">{username}</h1>
+                    )}
                     <h2 className="hero-title">{greeting}</h2>
                     <div className="hero-divider-minimal"></div>
-                    <p className="hero-subtitle">这里是你的数字花园与个人基础设施网关。所有的应用服务都在安全运行中，随时准备好为你服务。</p>
-                    {renderSocialLinks()}
+                    {isEditMode ? (
+                        <textarea 
+                            className="hero-bio-input" 
+                            value={personalSign} 
+                            onChange={(e) => setPersonalSign(e.target.value)}
+                            placeholder="编辑个性签名..."
+                            rows={4}
+                            maxLength={200}
+                        />
+                    ) : (
+                        <p className="hero-subtitle">{personalSign}</p>
+                    )}
+                    <div className="hero-minimal-footer">
+                        {renderSocialLinks()}
+                    </div>
                 </div>
                 {renderCropModal()}
             </>
@@ -140,17 +176,47 @@ export default function HeroSection({ heroStyle, socialLinks = [], isEditMode, a
     return (
         <>
             <div className="hero-section">
-                <div className="hero-card">
+                <div 
+                    className="hero-card"
+                    style={{
+                        backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none',
+                        WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none'
+                    }}
+                >
                     <div className="hero-header">
                         {renderAvatar()}
                     </div>
                     <div className="hero-content">
+                        {isEditMode ? (
+                            <input 
+                                className="hero-username-input" 
+                                value={username} 
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="用户名"
+                                maxLength={25}
+                            />
+                        ) : (
+                            username && <h1 className="hero-username">{username}</h1>
+                        )}
                         <h2 className="hero-title">{greeting}</h2>
                         <div className="hero-divider"></div>
-                        <p className="hero-subtitle">这里是你的数字花园与个人基础设施网关。所有的应用服务都在安全运行中，随时准备好为你服务。</p>
+                        {isEditMode ? (
+                            <textarea 
+                                className="hero-bio-input" 
+                                value={personalSign} 
+                                onChange={(e) => setPersonalSign(e.target.value)}
+                                placeholder="编辑个性签名..."
+                                rows={4}
+                                maxLength={200}
+                            />
+                        ) : (
+                            <p className="hero-subtitle">{personalSign}</p>
+                        )}
+                    </div>
+                    <div className="hero-card-footer">
+                        {renderSocialLinks()}
                     </div>
                 </div>
-                {renderSocialLinks()}
             </div>
             {renderCropModal()}
         </>

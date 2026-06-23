@@ -27,15 +27,30 @@
 
 *   **The `dnd-kit` CSS Transform Override Bug**:
     *   **Context**: In `AppGrid.jsx`, we use `dnd-kit` for sorting. When edit mode is OFF (`disabled: !isEditMode`), `useSortable` *still* returns a transform object like `{x: 0, y: 0, scaleX: 1, scaleY: 1}`.
-    *   **Bug**: If you pass `CSS.Transform.toString(transform)` into the React `style` prop while `!isEditMode`, it compiles to `transform: translate3d(0,0,0)`. This inline style has higher specificity and completely OVERRIDES the normal `.card:hover` CSS animation (`transform: translateY(-8px)`).
-    *   **Fix**: We conditionally render the `style` object. When `!isEditMode`, we completely omit `transform` and `transition` from the inline style. **Do NOT blindly destructure or re-attach dnd-kit's transform directly into normal DOM nodes without checking `isEditMode`.**
+    *   **Bug**: If you pass `CSS.Transform.toString(transform)` directly into the React `style` prop of the inner `.card`, it compiles to `transform: translate3d(0,0,0)`. This inline style has higher specificity and completely OVERRIDES the normal `.card:hover` CSS animation (`transform: translateY(-8px)`).
+    *   **Fix**: We strictly use **Structural Decoupling**. We wrap the `.card` inside a `.sortable-wrapper` `div`. The `dnd-kit` refs and inline styles are applied EXCLUSIVELY to the `.sortable-wrapper`. The inner `.card` remains pure and will always respond perfectly to CSS `:hover` states without interference. Do NOT attach dnd-kit styles directly to the visual card element.
+*   **WebKit Range Slider `overflow: hidden` Bug**:
+    *   **Bug**: When styling native `<input type="range">` elements with custom pseudo-elements (`::-webkit-slider-thumb`), adding `overflow: hidden` to the track (`.m3-slider`) will cause WebKit browsers (Chrome, Safari) to entirely hide or violently clip the thumb, making it disappear.
+    *   **Fix**: Never use `overflow: hidden` on range sliders to clip rounded corners. Use appropriate `border-radius` and ensure the thumb dimensions align properly with the track.
 *   **Vite CSS `@keyframes` Caching (HMR Failure)**:
     *   **Bug**: When editing the inner properties of a CSS `@keyframes` block (e.g., stripping out `transform` from an existing `popIn` animation), the browser's GPU might aggressively cache the old animation even after Vite hot-reloads the CSS. The user will still see the old bouncy animation.
     *   **Fix**: If you change the behavior of an animation significantly to satisfy user feedback, **RENAME the animation entirely** (e.g., `dropdownIn` -> `dropdownFadeIn`) to force the browser to repaint and invalidate the cache.
+*   **Chrome / WebKit Aggressive Cache Caching GET `/api/config`**:
+    *   **Bug**: Chromium browsers aggressively cache JSON GET requests. Uploads or changes done in one browser (like Firefox) were not visible in another (like Chrome) even after multiple refreshes.
+    *   **Fix**: Set server-side HTTP header `Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate` in GET `/api/config` and `/` routes, and append a dynamic cache-busting timestamp parameter `?t=${Date.now()}` on client-side fetches.
+*   **Chromium HEVC Video Autoplay Block & Codec Limitations**:
+    *   **Bug**: Uploaded H.265 (HEVC) backgrounds played fine in Firefox (via system codecs) but showed a blank/grey background in Chrome due to codec limits and autoplay restrictions.
+    *   **Fix**: The backend automatically transcodes uploaded videos to standard web-compatible H.264 (AVC) MP4 format with audio tracks stripped (`-an` to bypass autoplay sound checks). Front-end video player uses `key={mediaUrl}` to force mounting cycle on source change, and sets `defaultMuted` + `el.muted = true` in ref.
+*   **`iro.ColorPicker` Touch/Drag Loss of Focus**:
+    *   **Bug**: Re-creating the color picker on every `baseColor` state update destroyed the DOM element while the user was active dragging/touching, causing immediate loss of focus.
+    *   **Fix**: Initialize color picker once in static mounting `useEffect`, and sync `baseColor` state changes back to it programmatically checking for color inequality.
 
 ## 4. Architecture & Data Structures
+*   **Backend Server (`server.js`)**: An Express app listening on port 5000 (proxied via Vite on port 5173). Saves configurations to `data/config.json` and hosts static media uploads in `data/uploads/`.
 *   **Icon Mapping**: Because configurations are saved to `localStorage`/JSON, we cannot store React components directly. When adding new icons, you must register the string literal to the component reference inside `src/iconMap.js` or `src/socialIconMap.js`.
-*   **Media Processing**: `App.jsx` handles local video/image blob loading via `localforage` to bypass the `localStorage` 5MB quota. Always use `localforage` for heavy data or when saving complex state arrays in the future.
+*   **Media Processing & Performance Optimization**: `App.jsx` handles local video/image blob loading via `localforage` to bypass the `localStorage` 5MB quota. 
+    *   *CRITICAL*: Never feed raw high-res `Image` objects directly into the `@material/material-color-utilities` `themeFromImage` API, as traversing millions of pixels will instantly freeze the browser's main thread.
+    *   *Standard Pattern*: Always draw the raw image to an off-screen `<canvas>`, scale it down proportionally to a maximum dimension of ~128px, and use the downscaled miniature for color extraction. This drops pixel count dramatically and reduces extraction time to milliseconds.
 *   **Responsive Modals**: Modals like `SocialModal` are split into columns. On screens `< 800px`, they must collapse into a single column (`flex-direction: column`). Ensure all new admin panels respect `.admin-panel-wrapper` width constraints and media queries.
 
 End of instructions. Keep this document up to date when introducing new major libraries or encountering new bizarre framework quirks.

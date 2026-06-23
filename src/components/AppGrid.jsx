@@ -20,18 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { iconMap } from '../iconMap';
 import CardFormModal from './CardFormModal';
 
-const UptimeDots = React.memo(({ dots }) => {
-    if (!dots) return null;
-    return (
-        <div className="uptime-dots">
-            {dots.map((status, i) => (
-                <div key={i} className={`uptime-dot ${status}`}></div>
-            ))}
-        </div>
-    );
-});
-
-const SortableCard = ({ app, index, isEditMode, onEditClick, appDots }) => {
+const SortableCard = ({ app, index, isEditMode, onEditClick, appDots, hasRealUptime, cardBlur }) => {
     const {
         attributes,
         listeners,
@@ -49,48 +38,118 @@ const SortableCard = ({ app, index, isEditMode, onEditClick, appDots }) => {
     };
     const IconComponent = iconMap[app.iconName] || Box;
 
-    return (
-        <a
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            href="#"
-            className={`card ${isDragging ? 'dragging' : ''}`}
-            onClick={(e) => { if(isEditMode) e.preventDefault(); }}
-        >
-            {isEditMode && (
-                <button 
-                    className="edit-card-btn" 
-                    onClick={(e) => onEditClick(e, app)} 
-                    onPointerDown={(e) => e.stopPropagation()}
-                    title="编辑卡片"
-                >
-                    <Edit2 size={18} />
-                </button>
-            )}
+    const isOnline = appDots ? appDots[appDots.length - 1] === 'up' : true;
+    const uptimePercentage = appDots 
+        ? Math.round((appDots.filter(d => d === 'up').length / appDots.length) * 100) 
+        : 100;
 
-            <div className="icon-wrapper">
-                <IconComponent size={32} />
-            </div>
-            <h2 className="card-title">{app.title}</h2>
-            <div className="card-content-wrapper">
-                <p className="card-desc">{app.desc}</p>
-                
-                {app.showUptime && (
-                    <div className="uptime-container">
-                        <UptimeDots dots={appDots} />
-                        <span className="uptime-text">100%</span>
-                    </div>
+    return (
+        <div 
+            ref={setNodeRef} 
+            {...attributes} 
+            {...listeners}
+            className={`sortable-wrapper ${isDragging ? 'dragging' : ''}`}
+            style={{ ...style, display: 'flex', height: '100%' }}
+        >
+            <a
+                href={isEditMode ? '#' : (app.url || '#')}
+                target={isEditMode ? undefined : '_blank'}
+                rel={isEditMode ? undefined : 'noopener noreferrer'}
+                className="card"
+                onClick={(e) => { if(isEditMode) e.preventDefault(); }}
+                style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    boxSizing: 'border-box',
+                    backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none',
+                    WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none'
+                }}
+            >
+                {isEditMode && (
+                    <button 
+                        className="edit-card-btn" 
+                        onClick={(e) => onEditClick(e, app)} 
+                        onPointerDown={(e) => e.stopPropagation()}
+                        title="编辑卡片"
+                    >
+                        <Edit2 size={18} />
+                    </button>
                 )}
-            </div>
-        </a>
+
+                <div className="icon-wrapper">
+                    <IconComponent size={32} />
+                </div>
+                <h2 className="card-title">{app.title}</h2>
+                <div className="card-content-wrapper">
+                    <p className="card-desc">{app.desc}</p>
+                    
+                    {app.showUptime && (
+                        <div className="uptime-container">
+                            {hasRealUptime ? (
+                                <>
+                                    <div className="status-indicator">
+                                        <span className={`uptime-status-dot ${isOnline ? 'online pulsing' : 'offline'}`}></span>
+                                        <span className="status-text">
+                                            {isOnline ? '服务运行中' : '服务连接异常'}
+                                        </span>
+                                    </div>
+                                    <span className="uptime-text" style={{ color: isOnline ? 'var(--uptime-green, #10b981)' : 'var(--uptime-red, #ef4444)' }}>
+                                        Uptime {uptimePercentage}%
+                                    </span>
+                                </>
+                            ) : (
+                                <div className="status-indicator" style={{ opacity: 0.7 }}>
+                                    <span className="uptime-status-dot unconfigured"></span>
+                                    <span className="status-text" style={{ color: 'var(--text-variant)' }}>
+                                        未配置 Uptime 服务
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </a>
+        </div>
     );
 }
 
-export default function AppGrid({ cards, setCards, isEditMode }) {
+export default function AppGrid({ cards, setCards, isEditMode, kumaSlug, cardBlur }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState(null);
+    const [kumaData, setKumaData] = useState({});
+
+    React.useEffect(() => {
+        let isMounted = true;
+        const fetchUptime = async () => {
+            try {
+                const res = await fetch(`/kuma-api/status-page/${kumaSlug || 'default'}`);
+                if (!res.ok) throw new Error('Status page response not OK');
+                const data = await res.json();
+                
+                if (!isMounted) return;
+
+                const newDataMap = {};
+                if (data && data.heartbeatList) {
+                    for (const [monitorId, heartbeatList] of Object.entries(data.heartbeatList)) {
+                        if (heartbeatList && heartbeatList.length > 0) {
+                            const statusHistory = heartbeatList.map(beat => beat.status === 1 ? 'up' : 'down');
+                            newDataMap[monitorId] = statusHistory;
+                        }
+                    }
+                }
+                setKumaData(newDataMap);
+            } catch (err) {
+                console.warn("Unable to fetch Uptime Kuma data, using mock data:", err);
+            }
+        };
+
+        fetchUptime();
+        const interval = setInterval(fetchUptime, 60000);
+        return () => {
+            isMounted = false;
+            clearInterval(interval);
+        };
+    }, [kumaSlug]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -147,8 +206,35 @@ export default function AppGrid({ cards, setCards, isEditMode }) {
     };
 
     const appDots = React.useMemo(() => {
-        return cards.map(() => Array.from({length: 60}).map(() => Math.random() > 0.15 ? 'up' : 'down'));
-    }, [cards.length]);
+        const dotsMap = {};
+        cards.forEach((card) => {
+            const monitorId = card.kumaMonitorId && card.kumaMonitorId.trim() !== '' 
+                ? card.kumaMonitorId.trim() 
+                : card.id;
+
+            if (kumaData[monitorId]) {
+                dotsMap[card.id] = kumaData[monitorId];
+            } else {
+                // Seed a simple LCG based on the card id
+                const seedStr = card.id || '';
+                let seed = 0;
+                for (let i = 0; i < seedStr.length; i++) {
+                    seed = (seed << 5) - seed + seedStr.charCodeAt(i);
+                    seed |= 0; // Convert to 32bit integer
+                }
+                
+                // Linear Congruential Generator parameters (Numerical Recipes)
+                let r = Math.abs(seed);
+                const nextRandom = () => {
+                    r = (r * 9301 + 49297) % 233280;
+                    return r / 233280;
+                };
+
+                dotsMap[card.id] = Array.from({ length: 30 }).map(() => (nextRandom() > 0.15 ? 'up' : 'down'));
+            }
+        });
+        return dotsMap;
+    }, [cards, kumaData]);
 
     return (
         <>
@@ -163,20 +249,36 @@ export default function AppGrid({ cards, setCards, isEditMode }) {
                         items={cards.map(c => c.id)}
                         strategy={rectSortingStrategy}
                     >
-                        {cards.map((app, index) => (
-                            <SortableCard
-                                key={app.id}
-                                app={app}
-                                index={index}
-                                isEditMode={isEditMode}
-                                onEditClick={handleEditClick}
-                                appDots={appDots[index]}
-                            />
-                        ))}
+                        {cards.map((app, index) => {
+                            const monitorId = app.kumaMonitorId && app.kumaMonitorId.trim() !== '' 
+                                ? app.kumaMonitorId.trim() 
+                                : app.id;
+                            const hasRealUptime = !!kumaData[monitorId];
+
+                            return (
+                                <SortableCard
+                                    key={app.id}
+                                    app={app}
+                                    index={index}
+                                    isEditMode={isEditMode}
+                                    onEditClick={handleEditClick}
+                                    appDots={appDots[app.id] || []}
+                                    hasRealUptime={hasRealUptime}
+                                    cardBlur={cardBlur}
+                                />
+                            );
+                        })}
                     </SortableContext>
 
                     {isEditMode && (
-                        <div className="card add-card-placeholder" onClick={handleAddClick}>
+                        <div 
+                            className="card add-card-placeholder" 
+                            onClick={handleAddClick}
+                            style={{
+                                backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none',
+                                WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : 'none'
+                            }}
+                        >
                             <div className="add-icon-wrapper">
                                 <Plus size={48} />
                             </div>

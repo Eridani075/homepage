@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Moon, Sun, Palette, Sparkles, LayoutTemplate, Edit2, X, Compass } from 'lucide-react';
+import { Settings, Moon, Sun, Palette, Sparkles, LayoutTemplate, Edit2, X, Compass, Activity } from 'lucide-react';
 
-export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab, isEditMode, setIsEditMode, brandSubtitle, setBrandSubtitle }) {
+export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab, isEditMode, setIsEditMode, brandTitle, setBrandTitle, brandSubtitle, setBrandSubtitle, showAdminPill }) {
     const [scrolled, setScrolled] = useState(false);
     const [settingsExpanded, setSettingsExpanded] = useState(false);
 
@@ -32,10 +32,26 @@ export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab
         }
     };
     return (
-        <nav className={`top-bar ${scrolled ? 'scrolled' : ''}`}>
+        <nav 
+            className={`top-bar ${scrolled ? 'scrolled' : ''}`}
+            style={scrolled ? {
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)'
+            } : {}}
+        >
             <div className="top-bar-container">
                 <div className="brand">
-                    <h1>控制台</h1>
+                    {isEditMode ? (
+                        <input 
+                            type="text" 
+                            className="brand-title-input" 
+                            value={brandTitle} 
+                            onChange={(e) => setBrandTitle(e.target.value)} 
+                            placeholder="控制台"
+                        />
+                    ) : (
+                        <h1>{brandTitle}</h1>
+                    )}
                     <div className="brand-divider"></div>
                     {isEditMode ? (
                         <input 
@@ -51,42 +67,53 @@ export default function TopBar({ isDark, setIsDark, setAdminActive, setActiveTab
                 </div>
                 <div className="controls">
                     <button className="btn-icon small-btn theme-toggle-btn" onClick={() => setIsDark(!isDark)} title="切换模式">
-                        <div className={`icon-wrapper ${isDark ? 'is-dark' : 'is-light'}`}>
+                        <div className={`theme-icon-wrapper ${isDark ? 'is-dark' : 'is-light'}`}>
                             <Sun size={20} className="sun-icon" />
                             <Moon size={20} className="moon-icon" />
                         </div>
                     </button>
                     
-                    <div className={`settings-pill ${settingsExpanded && !isEditMode ? 'expanded' : ''}`}>
-                        <div className="settings-pill-content desktop-only">
-                            <button className="pill-btn" onClick={enterEditMode} title="编辑应用卡片">
-                                <Edit2 size={18} />
-                            </button>
-                            <button className="pill-btn" onClick={() => openSettings('palette')} title="色彩与背景">
-                                <Palette size={18} />
-                            </button>
+                    {showAdminPill && (
+                        <>
+                            <div className={`settings-pill ${settingsExpanded && !isEditMode ? 'expanded' : ''}`}>
+                                <div className="settings-pill-content desktop-only">
+                                    <button className="pill-btn" onClick={enterEditMode} title="编辑应用卡片">
+                                        <Edit2 size={18} />
+                                    </button>
+                                    <button className="pill-btn" onClick={() => openSettings('palette')} title="色彩与背景">
+                                        <Palette size={18} />
+                                    </button>
 
-                            <button className="pill-btn" onClick={() => openSettings('layout')} title="界面布局">
-                                <LayoutTemplate size={18} />
-                            </button>
-                        </div>
-                        <button className="btn-icon small-btn trigger-btn" onClick={handleTriggerClick} title={isEditMode ? "退出编辑" : "系统设置"}>
-                            {isEditMode ? <X size={20} /> : <Settings size={20} className={settingsExpanded ? 'rotate-icon' : ''} />}
-                        </button>
-                    </div>
-                    
-                    {/* Mobile Dropdown Menu */}
-                    <div className={`mobile-dropdown-menu ${settingsExpanded && !isEditMode ? 'open' : ''}`}>
-                        <button className="dropdown-item" onClick={enterEditMode}>
-                            <Edit2 size={16} /> 编辑卡片
-                        </button>
-                        <button className="dropdown-item" onClick={() => openSettings('palette')}>
-                            <Palette size={16} /> 色彩与背景
-                        </button>
-                        <button className="dropdown-item" onClick={() => openSettings('layout')}>
-                            <LayoutTemplate size={16} /> 界面布局
-                        </button>
-                    </div>
+                                    <button className="pill-btn" onClick={() => openSettings('layout')} title="界面布局">
+                                        <LayoutTemplate size={18} />
+                                    </button>
+
+                                    <button className="pill-btn" onClick={() => openSettings('uptime')} title="监控对接">
+                                        <Activity size={18} />
+                                    </button>
+                                </div>
+                                <button className="btn-icon small-btn trigger-btn" onClick={handleTriggerClick} title={isEditMode ? "退出编辑" : "系统设置"}>
+                                    {isEditMode ? <X size={20} /> : <Settings size={20} className={settingsExpanded ? 'rotate-icon' : ''} />}
+                                </button>
+                            </div>
+                            
+                            {/* Mobile Dropdown Menu */}
+                            <div className={`mobile-dropdown-menu ${settingsExpanded && !isEditMode ? 'open' : ''}`}>
+                                <button className="dropdown-item" onClick={enterEditMode}>
+                                    <Edit2 size={16} /> 编辑卡片
+                                </button>
+                                <button className="dropdown-item" onClick={() => openSettings('palette')}>
+                                    <Palette size={16} /> 色彩与背景
+                                </button>
+                                <button className="dropdown-item" onClick={() => openSettings('layout')}>
+                                    <LayoutTemplate size={16} /> 界面布局
+                                </button>
+                                <button className="dropdown-item" onClick={() => openSettings('uptime')}>
+                                    <Activity size={16} /> 监控对接
+                                </button>
+                            </div>
+                        </>
+                    )}
 
                 </div>
             </div>

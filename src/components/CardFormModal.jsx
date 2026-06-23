@@ -9,6 +9,7 @@ export default function CardFormModal({ onClose, onSave, onDelete, initialData }
     const [url, setUrl] = useState('');
     const [selectedIcon, setSelectedIcon] = useState('Globe');
     const [showUptime, setShowUptime] = useState(true);
+    const [kumaMonitorId, setKumaMonitorId] = useState('');
 
     useEffect(() => {
         if (initialData) {
@@ -17,6 +18,7 @@ export default function CardFormModal({ onClose, onSave, onDelete, initialData }
             setUrl(initialData.url || '');
             setSelectedIcon(initialData.iconName || 'Globe');
             setShowUptime(initialData.showUptime !== false);
+            setKumaMonitorId(initialData.kumaMonitorId || '');
         }
     }, [initialData]);
 
@@ -30,7 +32,8 @@ export default function CardFormModal({ onClose, onSave, onDelete, initialData }
             desc: desc.trim(),
             url: url.trim(),
             iconName: selectedIcon,
-            showUptime
+            showUptime,
+            kumaMonitorId: kumaMonitorId.trim()
         });
     };
 
@@ -113,6 +116,18 @@ export default function CardFormModal({ onClose, onSave, onDelete, initialData }
                                 <span className="slider round"></span>
                             </label>
                         </div>
+
+                        {showUptime && (
+                            <div className="form-group" style={{ animation: 'fadeIn 0.2s ease-out' }}>
+                                <label style={{ fontSize: '1.1rem' }}>Uptime Kuma 监控项 ID (可选)</label>
+                                <input 
+                                    type="text" 
+                                    value={kumaMonitorId} 
+                                    onChange={e => setKumaMonitorId(e.target.value)} 
+                                    placeholder="例如：1 (留空则默认使用卡片 ID)" 
+                                />
+                            </div>
+                        )}
 
                         <button type="submit" className="save-btn beautiful-btn" style={{width: '100%'}}>
                             {isEditMode ? '保存修改' : '添加至控制台'}
