@@ -31,32 +31,40 @@ app.use((req, res, next) => {
     next();
 });
 
-// Enable CORS with origin restrictions to prevent unauthorized cross-origin requests
-const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
-        if (!origin) {
-            return callback(null, true);
-        }
+// Enable CORS with origin restrictions (Allow same-origin, loopback, and local network requests)
+const corsOptionsDelegate = (req, callback) => {
+    let corsOptions = { credentials: true };
+    const origin = req.header('Origin');
+    if (!origin) {
+        corsOptions.origin = true;
+    } else {
         try {
             const url = new URL(origin);
-            // Allow localhost, 127.0.0.1, and local private network subnets (192.168.x.x, 10.x.x.x, 172.16.x.x to 172.31.x.x)
-            if (
+            const hostHeader = req.header('Host');
+            
+            // Allow same-origin requests (Origin host matches Host header)
+            if (hostHeader && (url.host === hostHeader || url.hostname === hostHeader.split(':')[0])) {
+                corsOptions.origin = true;
+            }
+            // Allow localhost and local private network subnets for development/local DNS
+            else if (
                 url.hostname === 'localhost' || 
                 url.hostname === '127.0.0.1' || 
                 url.hostname.startsWith('192.168.') || 
                 url.hostname.startsWith('10.') ||
                 /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(url.hostname)
             ) {
-                return callback(null, true);
+                corsOptions.origin = true;
+            } else {
+                corsOptions.origin = false;
             }
-        } catch (e) {}
-        // Fail other cross-origin requests
-        callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true
+        } catch (e) {
+            corsOptions.origin = false;
+        }
+    }
+    callback(null, corsOptions);
 };
-app.use(cors(corsOptions));
+app.use(cors(corsOptionsDelegate));
 
 // Parse JSON request body
 app.use(express.json({ limit: '50mb' }));
