@@ -1,6 +1,12 @@
 services:
   guide-portal:
-    build: .
+    # Option A: Pull from GitHub Container Registry (Recommended for Production)
+    # For master (classic): ghcr.io/eridani075/homepage:latest
+    # For glass-themed (color-mixed): ghcr.io/eridani075/homepage:glass-themed
+    image: ghcr.io/eridani075/homepage:latest
+    
+    # Option B: Build locally from source (uncomment if you want local compilation)
+    # build: .
     container_name: guide-portal
     restart: unless-stopped
     ports:
