@@ -1,9 +1,9 @@
 services:
   guide-portal:
     # Option A: Pull from GitHub Container Registry (Recommended for Production)
-    # Primary (Fast Proxy): ghcr.unsee.tech/eridani075/homepage:latest
-    # Fallback (Official): ghcr.io/eridani075/homepage:latest
-    image: ghcr.unsee.tech/eridani075/homepage:latest
+    # For master (classic): ghcr.io/eridani075/homepage:latest
+    # For glass-themed (color-mixed): ghcr.io/eridani075/homepage:glass-themed
+    image: ghcr.io/eridani075/homepage:latest
     
     # Option B: Build locally from source (uncomment if you want local compilation)
     # build: .
