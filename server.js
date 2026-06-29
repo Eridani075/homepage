@@ -437,16 +437,28 @@ app.get('/kuma-api/status-page/:slug', async (req, res) => {
 });
 
 // Static routes
-app.use('/api/uploads', express.static(UPLOADS_DIR));
+// Serve uploads (wallpapers, avatars) with a 30-day cache policy since filenames contain unique timestamps
+app.use('/api/uploads', express.static(UPLOADS_DIR, {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=2592000');
+    }
+}));
 
 // Serve Vite production output (dist/) in production
 const DIST_DIR = path.join(__dirname, 'dist');
 if (fs.existsSync(DIST_DIR)) {
-    // Disable caching for index.html so updates are loaded immediately
     app.use(express.static(DIST_DIR, {
         setHeaders: (res, filePath) => {
-            if (path.basename(filePath) === 'index.html') {
+            const baseName = path.basename(filePath);
+            if (baseName === 'index.html') {
+                // Disable caching for index.html so code updates are checked and loaded immediately
                 res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            } else if (/[\/\\]assets[\/\\]/.test(filePath)) {
+                // Vite assets are content-hashed and immutable, cache them for 1 year
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            } else {
+                // Other static resources (icons, manifest) cache for 1 day
+                res.setHeader('Cache-Control', 'public, max-age=86400');
             }
         }
     }));
