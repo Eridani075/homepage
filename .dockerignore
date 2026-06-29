@@ -1,0 +1,10 @@
+node_modules
+dist
+data
+.git
+.gitignore
+.claude
+*.bak
+src_backup*
+HANDOVER_*.md
+deployment_plan.md

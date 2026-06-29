@@ -26,3 +26,9 @@ dist-ssr
 # Backup dirs
 src_backup
 src_backup_glassmorphism
+
+# Data directory containing runtime database and uploads
+data/
+
+# Temporary test scripts
+test.js

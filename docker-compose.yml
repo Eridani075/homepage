@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  guide-portal:
+    build: .
+    container_name: guide-portal
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      # - KUMA_URL=http://localhost:3001  # Set to override Uptime Kuma URL inside the container if needed
