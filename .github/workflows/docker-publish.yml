@@ -5,6 +5,14 @@ on:
     branches:
       - master
       - glass-themed
+    paths-ignore:
+      - 'docker-compose.yml'
+      - '.gitignore'
+      - '.dockerignore'
+      - 'deployment_plan.md'
+      - 'README.md'
+      - 'HANDOVER_*.md'
+      - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io
