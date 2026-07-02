@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Settings, Moon, Sun } from 'lucide-react';
 import HeroSection from './components/HeroSection';
 import AppGrid from './components/AppGrid';
@@ -25,36 +25,55 @@ const hexToRgba = (hex, alpha) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+const readStorage = (key, fallback = null) => {
+    if (typeof window === 'undefined') return fallback;
+    try {
+        const value = window.localStorage.getItem(key);
+        return value ?? fallback;
+    } catch (e) {
+        return fallback;
+    }
+};
+
 export default function App() {
-    const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState(() => readStorage('theme-mode', 'light') === 'dark');
     const [adminActive, setAdminActive] = useState(false);
     const [activeTab, setActiveTab] = useState('layout'); // 'palette', 'style', 'layout'
-    const [socialLinks, setSocialLinks] = useState([
-        { id: '1', icon: 'FaGithub', title: 'GitHub', url: 'https://github.com' },
-        { id: '2', icon: 'FaXTwitter', title: 'X (Twitter)', url: 'https://twitter.com' },
-        { id: '3', icon: 'FaYoutube', title: 'YouTube', url: 'https://youtube.com' },
-        { id: '4', icon: 'Mail', title: 'Contact Me', url: 'mailto:hello@example.com' }
-    ]);
-    const [themeStyle, setThemeStyle] = useState('TONAL_SPOT');
-    const [baseColor, setBaseColor] = useState('#6200EE');
+    const [socialLinks, setSocialLinks] = useState(() => {
+        const defaults = [
+            { id: '1', icon: 'FaGithub', title: 'GitHub', url: 'https://github.com' },
+            { id: '2', icon: 'FaXTwitter', title: 'X (Twitter)', url: 'https://twitter.com' },
+            { id: '3', icon: 'FaYoutube', title: 'YouTube', url: 'https://youtube.com' },
+            { id: '4', icon: 'Mail', title: 'Contact Me', url: 'mailto:hello@example.com' }
+        ];
+        try {
+            const savedSocial = readStorage('dashboard-social-links');
+            return savedSocial ? JSON.parse(savedSocial) : defaults;
+        } catch (e) {
+            return defaults;
+        }
+    });
+    const [themeStyle, setThemeStyle] = useState(() => readStorage('theme-style', 'TONAL_SPOT'));
+    const [baseColor, setBaseColor] = useState(() => readStorage('theme-color', '#6200EE'));
     const [mediaUrl, setMediaUrl] = useState(null);
     const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
-    const [heroStyle, setHeroStyle] = useState('card'); // 'card' or 'minimal'
+    const [heroStyle, setHeroStyle] = useState(() => readStorage('hero-style', 'card')); // 'card' or 'minimal'
     const [isEditMode, setIsEditMode] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(null);
-    const [brandTitle, setBrandTitle] = useState('控制台');
-    const [brandSubtitle, setBrandSubtitle] = useState('家庭数据中心');
-    const [username, setUsername] = useState('Administrator');
-    const [personalSign, setPersonalSign] = useState('这里是你的数字花园与个人基础设施网关。所有的应用服务都在安全运行中，随时准备好为你服务。');
-    const [kumaUrl, setKumaUrl] = useState('http://localhost:3001');
-    const [kumaSlug, setKumaSlug] = useState('default');
+    const [brandTitle, setBrandTitle] = useState(() => readStorage('dashboard-title', '控制台'));
+    const [brandSubtitle, setBrandSubtitle] = useState(() => readStorage('dashboard-subtitle', '家庭数据中心'));
+    const [username, setUsername] = useState(() => readStorage('dashboard-username', 'Administrator'));
+    const [personalSign, setPersonalSign] = useState(() => readStorage('dashboard-signature', '这里是你的数字花园与个人基础设施网关。所有的应用服务都在安全运行中，随时准备好为你服务。'));
+    const [kumaUrl, setKumaUrl] = useState(() => readStorage('kuma-url', 'http://localhost:3001'));
+    const [kumaSlug, setKumaSlug] = useState(() => readStorage('kuma-slug', 'default'));
     
     // Background Overlay Settings
-    const [enableBgOverlay, setEnableBgOverlay] = useState(true);
-    const [bgOverlayFollowsTheme, setBgOverlayFollowsTheme] = useState(false);
-    const [bgOverlayBlur, setBgOverlayBlur] = useState(8);
+    const [enableBgOverlay, setEnableBgOverlay] = useState(() => readStorage('bg-overlay-enable', 'true') === 'true');
+    const [bgOverlayFollowsTheme, setBgOverlayFollowsTheme] = useState(() => readStorage('bg-overlay-follows-theme', 'false') === 'true');
+    const [bgOverlayBlur, setBgOverlayBlur] = useState(() => Number(readStorage('bg-overlay-blur', '8')));
     const [activeScheme, setActiveScheme] = useState(null);
-    const [apiKey, setApiKey] = useState(localStorage.getItem('api-key') || '');
+    const [apiKey, setApiKey] = useState(() => readStorage('api-key', ''));
+    const [isConfigLoaded, setIsConfigLoaded] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('api-key', apiKey);
@@ -137,10 +156,17 @@ export default function App() {
         { id: '4', title: '监控中心 (Grafana)', desc: '探针看板、Docker 容器监控及服务器性能数据。', iconName: 'Settings', showUptime: true },
         { id: '5', title: '私人云盘', desc: 'Nextcloud 数据中心、跨设备文件同步与照片备份。', iconName: 'Database', showUptime: true },
     ];
-    const [cards, setCards] = useState(defaultCards);
+    const [cards, setCards] = useState(() => {
+        try {
+            const savedCards = readStorage('dashboard-cards');
+            return savedCards ? JSON.parse(savedCards) : defaultCards;
+        } catch (e) {
+            return defaultCards;
+        }
+    });
 
     // Helper to load localStorage fallbacks
-    const loadLocalFallback = () => {
+    const loadLocalFallback = async () => {
         const savedMode = localStorage.getItem('theme-mode') || 'light';
         setIsDark(savedMode === 'dark');
 
@@ -194,20 +220,18 @@ export default function App() {
             } catch(e) {}
         }
 
-        localforage.getItem('custom-media').then((blob) => {
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                setMediaUrl(url);
-                setMediaType(blob.type.startsWith('video') ? 'video' : 'image');
-            }
-        });
+        const mediaBlob = await localforage.getItem('custom-media');
+        if (mediaBlob) {
+            const url = URL.createObjectURL(mediaBlob);
+            setMediaUrl(url);
+            setMediaType(mediaBlob.type.startsWith('video') ? 'video' : 'image');
+        }
 
-        localforage.getItem('custom-avatar').then((blob) => {
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                setAvatarUrl(url);
-            }
-        });
+        const avatarBlob = await localforage.getItem('custom-avatar');
+        if (avatarBlob) {
+            const url = URL.createObjectURL(avatarBlob);
+            setAvatarUrl(url);
+        }
     };
 
     // Load configuration on mount
@@ -219,7 +243,7 @@ export default function App() {
                 const config = await response.json();
                 
                 if (Object.keys(config).length === 0) {
-                    loadLocalFallback();
+                    await loadLocalFallback();
                     return;
                 }
 
@@ -244,29 +268,29 @@ export default function App() {
                     setMediaType(config.mediaType || (config.mediaUrl.endsWith('.mp4') ? 'video' : 'image'));
                 } else {
                     // fall back to localforage custom-media if server has no custom wallpaper
-                    localforage.getItem('custom-media').then((blob) => {
-                        if (blob) {
-                            const url = URL.createObjectURL(blob);
-                            setMediaUrl(url);
-                            setMediaType(blob.type.startsWith('video') ? 'video' : 'image');
-                        }
-                    });
+                    const mediaBlob = await localforage.getItem('custom-media');
+                    if (mediaBlob) {
+                        const url = URL.createObjectURL(mediaBlob);
+                        setMediaUrl(url);
+                        setMediaType(mediaBlob.type.startsWith('video') ? 'video' : 'image');
+                    }
                 }
 
                 if (config.avatarUrl) {
                     setAvatarUrl(config.avatarUrl);
                 } else {
                     // fall back to localforage custom-avatar
-                    localforage.getItem('custom-avatar').then((blob) => {
-                        if (blob) {
-                            const url = URL.createObjectURL(blob);
-                            setAvatarUrl(url);
-                        }
-                    });
+                    const avatarBlob = await localforage.getItem('custom-avatar');
+                    if (avatarBlob) {
+                        const url = URL.createObjectURL(avatarBlob);
+                        setAvatarUrl(url);
+                    }
                 }
             } catch (e) {
                 console.warn('Backend configuration failed to load, falling back to browser storage:', e);
-                loadLocalFallback();
+                await loadLocalFallback();
+            } finally {
+                setIsConfigLoaded(true);
             }
         };
 
@@ -291,8 +315,8 @@ export default function App() {
         };
     }, [avatarUrl]);
 
-    // Apply Material Theme Instantly for smooth color dragging
-    useEffect(() => {
+    // Apply Material Theme before paint to avoid a default-theme flash on refresh.
+    useLayoutEffect(() => {
         const root = document.documentElement;
         document.body.classList.add('theme-switching');
         
@@ -337,13 +361,13 @@ export default function App() {
             kumaUrl,
             kumaSlug
         };
-        if (!isFirstRun.current) {
+        if (isConfigLoaded && !isFirstRun.current) {
             hasUnsavedChanges.current = true;
         }
     }, [
         isDark, themeStyle, baseColor, heroStyle, brandTitle, brandSubtitle, enableBgOverlay,
         bgOverlayFollowsTheme, bgOverlayBlur, cards, socialLinks, username, personalSign,
-        mediaUrl, mediaType, avatarUrl, kumaUrl, kumaSlug
+        mediaUrl, mediaType, avatarUrl, kumaUrl, kumaSlug, isConfigLoaded
     ]);
 
     // Save on tab close
@@ -389,6 +413,10 @@ export default function App() {
 
     // Unified debounced saving to Server & LocalStorage
     useEffect(() => {
+        if (!isConfigLoaded) {
+            return;
+        }
+
         if (isFirstRun.current) {
             isFirstRun.current = false;
             return;
@@ -479,7 +507,8 @@ export default function App() {
         mediaType,
         avatarUrl,
         kumaUrl,
-        kumaSlug
+        kumaSlug,
+        isConfigLoaded
     ]);
 
     const applyMaterialTheme = (hex, dark, style) => {
@@ -723,6 +752,10 @@ export default function App() {
     };
 
     const cardBlur = Math.max(0, 16 - bgOverlayBlur);
+
+    if (!isConfigLoaded) {
+        return null;
+    }
 
     return (
         <>
